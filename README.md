@@ -24,7 +24,7 @@ Examine whether there is a difference in **mean cholesterol levels** between mal
 ## 🖼️ Visualization
 Boxplot illustrating cholesterol levels by sex:
 
-![Cholesterol by Sex](plots/boxplot_chol_by_sex.png)
+![Cholesterol by Sex](plots/qq_females.png)
 
 ## 🧠 Conclusion
 In this dataset, females have higher mean cholesterol levels compared to males.  
