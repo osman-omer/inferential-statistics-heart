@@ -1,0 +1,82 @@
+---
+title: "Heart Dataset Analysis"
+author: "Osman Omer Mustafa"
+date: "`r format(Sys.Date(),'%Y-%m-%d')`"
+output: html_document
+---
+
+## Loading Packages
+```{r setup,message=FALSE, warning=FALSE}
+library(tidyverse)
+library(rstatix)
+library(ggpubr)
+```
+## Data Loading
+now we load the dataset and prepare it for analysis
+```{r}
+#Read the data
+data <- read.csv("heart.csv")
+#  Quick structure check
+glimpse(data)
+```
+## Data Transformation
+we convert the 'sex' variable into a factor with labels for better readability.
+```{r}
+data <- data %>%
+  mutate(sex = factor(sex, labels = c("Female", "Male")))
+
+# Quick check
+summary(data$sex)
+```
+##  Descriptive Statistics
+Summary of cholesterol levels grouped by sex 
+```{r}
+descriptive_by_sex <- data %>%
+  group_by(sex) %>%
+  summarise(
+    n         = n(),
+    mean_chol = mean(chol, na.rm = TRUE),
+    sd_chol   = sd(chol, na.rm = TRUE),
+    .groups   = "drop"
+  )
+
+descriptive_by_sex
+```
+## Normality check
+checking the distribution of cholesterol for each group
+```{r}
+#  QQ plots (normality check)
+ggqqplot(data$chol[data$sex == "Female"])
+ggqqplot(data$chol[data$sex == "Male"])
+```
+## Inferential Statistics
+we preform a Welch two-sample t-test to compare the mean cholesterol levels between groups.
+```{r}
+#  Welch two-sample t-test
+t_test_result <- t.test(chol ~ sex, data = data)
+t_test_result
+```
+## Effect Size 
+Calculating cohen's d to determine teh magnitude of the difference.
+```{r}
+#  Effect size (Cohen's d)
+effect_size <- cohens_d(chol ~ sex, data = data)
+effect_size
+```
+## Visualization of Differences A boxplot comparing cholesterol distribution for Females and Males
+```{r}
+# Boxplot visualization
+p_box <- ggboxplot(
+  data,
+  x = "sex",
+  y = "chol",
+  color = "sex",
+  palette = "jco",
+  add = "jitter"
+)
+p_box
+```
+
+## Conclusion
+Based on the Welch t-test (p < 0.05), there is a **statistically significant difference** in cholesterol levels between females and males. 
+Females showed a higher mean (261.4) compared to males (239.2), with a **small-to-moderate effect size** (Cohen's d = 0.405).
